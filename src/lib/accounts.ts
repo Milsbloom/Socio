@@ -39,9 +39,9 @@ export async function markNeedsReconnect(accountId: number) {
   await db.update(schema.socialAccounts).set({ status: "needs_reconnect" }).where(eq(schema.socialAccounts.id, accountId));
 }
 
-/** Returns a usable access token, refreshing it first when it expires within 5 minutes. */
-export async function accessToken(acct: SocialAccount): Promise<string> {
-  const soon = Date.now() + 5 * 60 * 1000;
+/** Returns a usable access token, refreshing it first when it expires within `windowMs` (default 5 minutes). */
+export async function accessToken(acct: SocialAccount, windowMs = 5 * 60 * 1000): Promise<string> {
+  const soon = Date.now() + windowMs;
   if (!acct.tokenExpiresAt || acct.tokenExpiresAt.getTime() > soon) return decrypt(acct.accessTokenEnc);
 
   const platform = getPlatform(acct.platform);
@@ -77,4 +77,20 @@ export function accountHealth(acct: SocialAccount): "connected" | "expiring" | "
     if (days < 7) return "expiring";
   }
   return "connected";
+}
+
+/**
+ * Refreshes long-lived tokens (Instagram's last 60 days) a week before they expire,
+ * so accounts that aren't posted to often stay connected. Runs from the cron job.
+ */
+export async function refreshExpiring() {
+  const week = 7 * 86_400_000;
+  const rows = await db.select().from(schema.socialAccounts).where(eq(schema.socialAccounts.status, "connected"));
+  for (const acct of rows) {
+    if (!acct.tokenExpiresAt || !acct.refreshTokenEnc || !getPlatform(acct.platform)?.refresh) continue;
+    // Short-lived tokens (X's last 2 hours) are refreshed when used instead.
+    const lifetime = acct.tokenExpiresAt.getTime() - acct.updatedAt.getTime();
+    if (lifetime < 2 * week || acct.tokenExpiresAt.getTime() - Date.now() > week) continue;
+    await accessToken(acct, week).catch(() => undefined);
+  }
 }

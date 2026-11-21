@@ -40,6 +40,11 @@ test("platform rules catch common mistakes", () => {
   const tiktok = { label: "TikTok", captionLimit: 2200, maxImages: 0, requiresMedia: "video" as const };
   assert.equal(checkForPlatform(tiktok, "hi", []).length, 1);
   assert.deepEqual(checkForPlatform(tiktok, "hi", [{ kind: "video" }]), []);
+  assert.equal(checkForPlatform(tiktok, "hi", [{ kind: "image" }]).length, 2);
+  const ig = { label: "Instagram", captionLimit: 2200, maxImages: 10, imageTypes: ["image/jpeg"], requiresMedia: "any" as const };
+  assert.deepEqual(checkForPlatform(ig, "", [{ kind: "image", mimeType: "image/jpeg" }]), []);
+  assert.equal(checkForPlatform(ig, "", [{ kind: "image", mimeType: "image/png" }]).length, 1);
+  assert.equal(checkForPlatform(ig, "text only", []).length, 1);
 });
 
 test("LinkedIn text escapes markup and keeps hashtags", () => {

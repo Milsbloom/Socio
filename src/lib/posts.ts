@@ -2,7 +2,7 @@ import { and, desc, eq, inArray, lte } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Post, PostTarget, SocialAccount } from "@/db/schema";
 import { getPlatform, PlatformError, type MediaFile, type PublishInput, type StatusResult } from "@/platforms";
-import { accessToken, markNeedsReconnect } from "./accounts";
+import { accessToken, markNeedsReconnect, refreshExpiring } from "./accounts";
 import { publicUrl, readStored } from "./media";
 import { checkForPlatform } from "./validate";
 
@@ -266,5 +266,6 @@ export async function runDue(): Promise<{ published: number }> {
     .limit(10);
   for (const { id } of due) await publishPost(id);
   await checkProcessing();
+  await refreshExpiring();
   return { published: due.length };
 }

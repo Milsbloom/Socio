@@ -19,6 +19,7 @@ export default async function ComposePage() {
       captionLimit: p.captionLimit,
       maxImages: p.maxImages,
       requiresMedia: p.requiresMedia ?? null,
+      imageTypes: p.imageTypes ?? null,
     });
   }
 

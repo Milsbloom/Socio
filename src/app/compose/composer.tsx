@@ -11,6 +11,7 @@ export interface ComposerAccount {
   captionLimit: number;
   maxImages: number;
   requiresMedia: "video" | "any" | null;
+  imageTypes: string[] | null;
 }
 
 export default function Composer({ accounts }: { accounts: ComposerAccount[] }) {
@@ -61,7 +62,10 @@ export default function Composer({ accounts }: { accounts: ComposerAccount[] }) 
         accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm"
         onChange={(e) =>
           setMedia(
-            Array.from(e.target.files ?? []).map((f) => ({ kind: f.type.startsWith("video/") ? "video" : "image" })),
+            Array.from(e.target.files ?? []).map((f) => ({
+              kind: f.type.startsWith("video/") ? "video" : "image",
+              mimeType: f.type,
+            })),
           )
         }
       />

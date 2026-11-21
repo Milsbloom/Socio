@@ -44,6 +44,8 @@ export interface Platform {
   /** "video": must have exactly one video. "any": must have at least one image or video. */
   requiresMedia?: "video" | "any";
   maxImages: number;
+  /** When set, the only image types this platform accepts. */
+  imageTypes?: string[];
   /** True when this platform's app keys are present in the environment. */
   configured(): boolean;
   /** Whether the sign-in uses PKCE. */

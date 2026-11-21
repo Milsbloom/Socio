@@ -8,8 +8,8 @@ AI tools such as Claude will be able to draft and schedule posts through an MCP 
 | Milestone | What | State |
 | --- | --- | --- |
 | 1 | Sign-in, accounts, composer, history, cron publisher, LinkedIn (profile + company pages), X | Built |
-| 2 | Instagram, Facebook Pages | Next |
-| 3 | TikTok, YouTube | Planned |
+| 2 | Instagram, Facebook Pages | Built |
+| 3 | TikTok, YouTube | Next |
 | 4 | Scheduling polish, MCP server, REST API | Planned |
 
 ## How it works

@@ -1,0 +1,47 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { randomBytes } from "node:crypto";
+import { decrypt, encrypt, hashPassword, verifyPassword } from "./crypto";
+import { sign, verifySigned } from "./session";
+import { checkForPlatform } from "./validate";
+import { toLittleText } from "../platforms/linkedin";
+
+test("tokens round-trip through encryption and tampering is caught", () => {
+  const key = randomBytes(32);
+  const box = encrypt("secret-token", key);
+  assert.equal(decrypt(box, key), "secret-token");
+  const [iv, tag, data] = box.split(".");
+  const flipped = Buffer.from(data, "base64url");
+  flipped[0] ^= 1;
+  assert.throws(() => decrypt([iv, tag, flipped.toString("base64url")].join("."), key));
+});
+
+test("passwords verify only with the right password", async () => {
+  const h = await hashPassword("correct horse battery");
+  assert.equal(await verifyPassword("correct horse battery", h), true);
+  assert.equal(await verifyPassword("wrong", h), false);
+});
+
+test("signed values reject tampering, wrong secrets and expiry", async () => {
+  const t = await sign({ uid: 7 }, "s1", 60);
+  assert.equal((await verifySigned<{ uid: number }>(t, "s1"))?.uid, 7);
+  assert.equal(await verifySigned(t, "s2"), null);
+  assert.equal(await verifySigned(t.replace(/^./, "x"), "s1"), null);
+  assert.equal(await verifySigned(await sign({ uid: 7 }, "s1", -5), "s1"), null);
+});
+
+test("platform rules catch common mistakes", () => {
+  const x = { label: "X", captionLimit: 280, maxImages: 4 };
+  assert.deepEqual(checkForPlatform(x, "hello", []), []);
+  assert.equal(checkForPlatform(x, "a".repeat(281), []).length, 1);
+  assert.equal(checkForPlatform(x, "", [{ kind: "image" }, { kind: "image" }, { kind: "image" }, { kind: "image" }, { kind: "image" }]).length, 1);
+  assert.equal(checkForPlatform(x, "", [{ kind: "video" }, { kind: "image" }]).length, 1);
+  assert.equal(checkForPlatform(x, "", []).length, 1);
+  const tiktok = { label: "TikTok", captionLimit: 2200, maxImages: 0, requiresMedia: "video" as const };
+  assert.equal(checkForPlatform(tiktok, "hi", []).length, 1);
+  assert.deepEqual(checkForPlatform(tiktok, "hi", [{ kind: "video" }]), []);
+});
+
+test("LinkedIn text escapes markup and keeps hashtags", () => {
+  assert.equal(toLittleText("Launch (beta) @ 9am #socio"), "Launch \\(beta\\) \\@ 9am {hashtag|\\#|socio}");
+});

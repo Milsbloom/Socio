@@ -1,3 +1,4 @@
+import { secret } from "@/lib/secrets";
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { pkcePair, randomToken } from "@/lib/crypto";
@@ -22,7 +23,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ platform
   const state = randomToken(24);
   const { verifier, challenge } = pkcePair();
   const res = NextResponse.redirect(platform.authorizeUrl(state, challenge));
-  res.cookies.set(OAUTH_COOKIE, await sign({ state, verifier, platform: id, uid: user.uid }, env("SESSION_SECRET"), 600), {
+  res.cookies.set(OAUTH_COOKIE, await sign({ state, verifier, platform: id, uid: user.uid }, secret("SESSION_SECRET"), 600), {
     httpOnly: true,
     secure: secureCookies(),
     sameSite: "lax",

@@ -1,11 +1,11 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
-import { env } from "./env";
+import { secret } from "./secrets";
 
 const scryptAsync = promisify(scrypt) as (pw: string, salt: Buffer, len: number) => Promise<Buffer>;
 
 function key(): Buffer {
-  const k = Buffer.from(env("ENCRYPTION_KEY"), "hex");
+  const k = Buffer.from(secret("ENCRYPTION_KEY"), "hex");
   if (k.length !== 32) throw new Error("ENCRYPTION_KEY must be 64 hex characters");
   return k;
 }

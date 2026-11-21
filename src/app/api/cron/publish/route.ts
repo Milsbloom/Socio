@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { env } from "@/lib/env";
+import { secret } from "@/lib/secrets";
 import { runDue } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +7,7 @@ export const maxDuration = 300;
 
 function authorized(req: Request): boolean {
   const given = req.headers.get("x-cron-secret") ?? new URL(req.url).searchParams.get("secret") ?? "";
-  const want = env("CRON_SECRET");
+  const want = secret("CRON_SECRET");
   return given.length === want.length && timingSafeEqual(Buffer.from(given), Buffer.from(want));
 }
 

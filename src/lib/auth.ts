@@ -2,7 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
-import { env, secureCookies } from "./env";
+import { secureCookies } from "./env";
+import { secret } from "./secrets";
 import { SESSION_COOKIE, SESSION_TTL, sign, verifySigned } from "./session";
 import { sha256 } from "./crypto";
 
@@ -10,7 +11,7 @@ export type SessionUser = { uid: number };
 
 export async function currentUser(): Promise<SessionUser | null> {
   const jar = await cookies();
-  return verifySigned<SessionUser>(jar.get(SESSION_COOKIE)?.value, env("SESSION_SECRET"));
+  return verifySigned<SessionUser>(jar.get(SESSION_COOKIE)?.value, secret("SESSION_SECRET"));
 }
 
 /** For pages and server actions: the signed-in user, or a redirect to the login page. */
@@ -22,7 +23,7 @@ export async function requireUser(): Promise<SessionUser> {
 
 export async function startSession(uid: number) {
   const jar = await cookies();
-  jar.set(SESSION_COOKIE, await sign({ uid }, env("SESSION_SECRET"), SESSION_TTL), {
+  jar.set(SESSION_COOKIE, await sign({ uid }, secret("SESSION_SECRET"), SESSION_TTL), {
     httpOnly: true,
     secure: secureCookies(),
     sameSite: "lax",

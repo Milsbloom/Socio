@@ -1,3 +1,4 @@
+import { secret } from "@/lib/secrets";
 import { NextResponse, type NextRequest } from "next/server";
 import { saveAccounts } from "@/lib/accounts";
 import { env } from "@/lib/env";
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ plat
   const { platform: id } = await params;
   const platform = getPlatform(id);
   const q = req.nextUrl.searchParams;
-  const saved = await verifySigned<OAuthState>(req.cookies.get(OAUTH_COOKIE)?.value, env("SESSION_SECRET"));
+  const saved = await verifySigned<OAuthState>(req.cookies.get(OAUTH_COOKIE)?.value, secret("SESSION_SECRET"));
 
   if (!platform) return back(req, "error=Unknown+platform");
   if (q.get("error")) return back(req, `error=${encodeURIComponent(q.get("error_description") ?? q.get("error")!)}`);

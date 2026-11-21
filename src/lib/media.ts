@@ -16,7 +16,7 @@ const EXT: Record<string, string> = {
 };
 
 export function mediaDir(): string {
-  return path.resolve(process.env.MEDIA_DIR || "./uploads");
+  return path.resolve(process.env.MEDIA_DIR || (process.env.DATA_DIR ? path.join(process.env.DATA_DIR, "media") : "./uploads"));
 }
 
 export function kindOf(mime: string): "image" | "video" | null {

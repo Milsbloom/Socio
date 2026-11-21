@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySigned } from "@/lib/session";
 
 // Pages need a signed-in session. API routes, media files and OAuth callbacks check auth themselves.
-const PUBLIC = [/^\/login/, /^\/api\//, /^\/\.well-known\//, /^\/media\//, /^\/_next\//, /^\/favicon/];
+const PUBLIC = [/^\/login/, /^\/setup/, /^\/api\//, /^\/\.well-known\//, /^\/media\//, /^\/_next\//, /^\/favicon/];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

@@ -17,6 +17,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "drizzle-orm": "0.45.4",
     "mysql2": "3.24.6",
     "next": "15.5.29",

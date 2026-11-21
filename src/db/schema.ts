@@ -110,3 +110,21 @@ export type SocialAccount = typeof socialAccounts.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type PostTarget = typeof postTargets.$inferSelect;
 export type Media = typeof media.$inferSelect;
+
+/** AI apps that registered themselves for OAuth (Claude's custom connector does this automatically). */
+export const oauthClients = mysqlTable("oauth_clients", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  redirectUris: json("redirect_uris").$type<string[]>().notNull(),
+  createdAt: createdAt(),
+});
+
+/** One-time codes handed to an AI app after the owner clicks Allow. */
+export const oauthCodes = mysqlTable("oauth_codes", {
+  codeHash: varchar("code_hash", { length: 128 }).primaryKey(),
+  clientId: varchar("client_id", { length: 64 }).notNull(),
+  userId: int("user_id").notNull(),
+  redirectUri: varchar("redirect_uri", { length: 1024 }).notNull(),
+  codeChallenge: varchar("code_challenge", { length: 128 }).notNull(),
+  expiresAt: datetime("expires_at").notNull(),
+});

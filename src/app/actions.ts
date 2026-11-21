@@ -17,7 +17,9 @@ export async function login(_: FormState, form: FormData): Promise<FormState> {
   const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
   if (!user || !(await verifyPassword(password, user.passwordHash))) return { error: "Wrong email or password." };
   await startSession(user.id);
-  redirect("/posts");
+  // Only same-site paths, so the login page can't be used to bounce people elsewhere.
+  const next = String(form.get("next") ?? "");
+  redirect(next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next : "/posts");
 }
 
 export async function logout() {

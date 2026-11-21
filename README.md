@@ -10,7 +10,7 @@ AI tools such as Claude will be able to draft and schedule posts through an MCP 
 | 1 | Sign-in, accounts, composer, history, cron publisher, LinkedIn (profile + company pages), X | Built |
 | 2 | Instagram, Facebook Pages | Built |
 | 3 | TikTok, YouTube | Built |
-| 4 | Scheduling polish, MCP server, REST API | Next |
+| 4 | MCP server for Claude, REST API, API keys | Built |
 
 ## How it works
 
@@ -41,6 +41,13 @@ AI tools such as Claude will be able to draft and schedule posts through an MCP 
    ```
 6. Fill in each platform's app keys as you finish the setup guides, then connect accounts on the
    Accounts page.
+
+## Connecting Claude and other AI tools
+
+- **Claude:** Settings, Connectors, Add custom connector, URL `https://socio.chanzotech.com/api/mcp`. Claude sends you to Socio to sign in and approve. The connection then shows on Socio's **AI & API** page, where you can revoke it.
+- **Other MCP clients:** the same URL with `Authorization: Bearer <API key>`. Create keys on the AI & API page.
+- **REST API** (same key): `GET /api/v1/accounts`, `GET|POST /api/v1/posts`, `GET|DELETE /api/v1/posts/{id}`, `POST /api/v1/posts/{id}/publish`, `POST /api/v1/posts/{id}/schedule` with `{"publish_at": "<ISO 8601>"}`. A new post body is `{"caption", "account_ids", "captions_by_account"?, "media_urls"?}`.
+- AI tools can only create drafts until you set `AI_CAN_PUBLISH=true` in the environment variables.
 
 ## Local development
 

@@ -65,3 +65,19 @@ test("YouTube titles come from the first line and fit 100 characters", async () 
   assert.equal([...titleFrom("a".repeat(150))].length, 100);
   assert.equal(titleFrom(""), "New video");
 });
+
+test("AI media links can't reach private hosts", async () => {
+  const { isPrivateHost } = await import("./ai");
+  for (const h of ["localhost", "127.0.0.1", "10.1.2.3", "192.168.0.5", "172.20.0.1", "[::1]", "169.254.169.254"]) {
+    assert.equal(isPrivateHost(h), true, h);
+  }
+  for (const h of ["example.com", "cdn.chanzotech.com", "8.8.8.8", "172.32.0.1"]) assert.equal(isPrivateHost(h), false, h);
+});
+
+test("OAuth redirect URIs: https or localhost only", async () => {
+  const { validRedirectUri } = await import("./oauth");
+  assert.equal(validRedirectUri("https://claude.ai/api/mcp/auth_callback"), true);
+  assert.equal(validRedirectUri("http://localhost:6274/callback"), true);
+  assert.equal(validRedirectUri("http://evil.example/cb"), false);
+  assert.equal(validRedirectUri("javascript:alert(1)"), false);
+});

@@ -1,10 +1,11 @@
 import { linkedin, linkedinPages } from "./linkedin";
 import { facebook, instagram } from "./meta";
+import { tiktokPlatform } from "./tiktok";
 import { x } from "./x";
+import { youtube } from "./youtube";
 import type { Platform, PlatformId } from "./types";
 
-// TikTok and YouTube are added in milestone 3.
-export const PLATFORMS: Platform[] = [instagram, facebook, linkedinPages, linkedin, x];
+export const PLATFORMS: Platform[] = [instagram, facebook, tiktokPlatform, youtube, linkedinPages, linkedin, x];
 
 export function getPlatform(id: string): Platform | undefined {
   return PLATFORMS.find((p) => p.id === (id as PlatformId));

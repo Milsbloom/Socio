@@ -50,3 +50,18 @@ test("platform rules catch common mistakes", () => {
 test("LinkedIn text escapes markup and keeps hashtags", () => {
   assert.equal(toLittleText("Launch (beta) @ 9am #socio"), "Launch \\(beta\\) \\@ 9am {hashtag|\\#|socio}");
 });
+
+test("TikTok upload chunks follow TikTok's size rules", async () => {
+  const { chunkPlan } = await import("../platforms/tiktok");
+  const MB = 1024 * 1024;
+  assert.deepEqual(chunkPlan(3 * MB), { chunkSize: 3 * MB, count: 1 });
+  assert.deepEqual(chunkPlan(8 * MB), { chunkSize: 8 * MB, count: 1 });
+  assert.deepEqual(chunkPlan(25 * MB), { chunkSize: 10 * MB, count: 2 });
+});
+
+test("YouTube titles come from the first line and fit 100 characters", async () => {
+  const { titleFrom } = await import("../platforms/youtube");
+  assert.equal(titleFrom("\nLaunch day <3\nmore text"), "Launch day 3");
+  assert.equal([...titleFrom("a".repeat(150))].length, 100);
+  assert.equal(titleFrom(""), "New video");
+});
